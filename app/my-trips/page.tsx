@@ -10,6 +10,7 @@
 // }
 
 
+export const dynamic = "force-dynamic";
 
 import { Suspense } from "react"
 import { DashboardShell } from "@/components/dashboard-shell"

@@ -10,6 +10,12 @@ export async function POST(req: NextRequest) {
   try {
     const { userEmail, destination, startDate, endDate, budget, preferences, itineraryData } = await req.json()
 
+    // TODO: first query the uid using the user email, then we can use the uid as a foriegn key in the travelsearch table
+    //query to save the travel search data
+    //INSERT INTO travelsearch (startdate, enddate, duration, location, budget, uid)
+    // VALUES ($1, $2, $3, $4, $5, $6)
+    // RETURNING tid
+    
     await pool.query(
       `INSERT INTO itineraries 
         (user_email, destination, start_date, end_date, budget, preferences, data)
