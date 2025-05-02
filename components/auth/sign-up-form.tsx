@@ -63,7 +63,10 @@ export function SignUpForm() {
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || "Registration failed")
 
-      router.push("/dashboard")
+
+
+        router.push(`/my-trips?email=${encodeURIComponent(values.email)}`)
+
     } catch (err: any) {
       setError(err.message || "An error occurred during registration.")
     } finally {
