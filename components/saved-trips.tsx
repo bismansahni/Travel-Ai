@@ -324,6 +324,32 @@ function SavedTripsContent() {
     return timeString
   }
 
+  const handleDeleteTrip = async (tripId: number) => {
+    if (!email) {
+      alert("Missing user email.");
+      return;
+    }
+  
+    const confirmed = confirm("Are you sure you want to delete this trip?");
+    if (!confirmed) return;
+  
+    try {
+      const res = await fetch(`/api/delete-trip?email=${encodeURIComponent(email)}&tripId=${tripId}`, {
+        method: "DELETE",
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) throw new Error(data.error || "Unknown error");
+  
+      setSavedTrips((prev) => prev.filter((trip) => trip.tid !== tripId));
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete trip.");
+    }
+  };
+  
+
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
@@ -383,6 +409,13 @@ function SavedTripsContent() {
                 <CardFooter>
                   <Button variant="outline" className="w-full" onClick={() => handleViewItinerary(trip)}>
                     View Itinerary
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="w-full"
+                    onClick={() => handleDeleteTrip(trip.tid)}
+                  >
+                    Delete
                   </Button>
                 </CardFooter>
               </Card>
