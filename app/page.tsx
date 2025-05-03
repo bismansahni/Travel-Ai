@@ -137,7 +137,7 @@ export default function Home() {
             <Globe className="h-6 w-6 text-primary" />
             <p className="text-lg font-bold">TravelAI</p>
           </div>
-          <p className="text-sm text-muted-foreground">© 2023 TravelAI. All rights reserved.</p>
+       
         </div>
       </footer>
     </div>
