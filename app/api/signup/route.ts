@@ -12,8 +12,11 @@ const pool = new Pool({
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { name, email, password } = await req.json();
 
+    if (!name || !email || !password) {
+      return NextResponse.json({ error: "Name, email, and password are required" }, { status: 400 });
+    }
    
     const existingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (existingUser.rows.length > 0) {
@@ -25,8 +28,8 @@ export async function POST(req: NextRequest) {
 
   
     await pool.query(
-      "INSERT INTO users (email, password) VALUES ($1, $2)",
-      [email, hashedPassword]
+      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
+      [name, email, hashedPassword]
     );
 
     return NextResponse.json({ message: "User registered successfully" });
