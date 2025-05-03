@@ -10,12 +10,12 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { activities, estimatedcost, day, tid } = body;
 
-  if (!activities || !day || !tid) {
+  if (!activities || !Number.isFinite(day) || !Number.isFinite(tid)) {
     return NextResponse.json(
       { error: "Activities, day, and tid are required" },
       { status: 400 }
     );
-  }
+  }  
 
   try {
     

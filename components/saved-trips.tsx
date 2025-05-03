@@ -43,6 +43,19 @@ function SavedTripsContent() {
 
   const filteredTrips = savedTrips.filter((trip) => trip.location.toLowerCase().includes(searchQuery.toLowerCase()))
 
+  const fetchItineraryForTrip = async (tid: number) => {
+    try {
+      const res = await fetch(`/api/get-trip-results?tid=${tid}`);
+      if (!res.ok) throw new Error("fetch failed");
+      const { activities } = await res.json();
+      return activities;
+    } catch (e) {
+      console.error("Cannot load itinerary:", e);
+      return null;
+    }
+  };
+  
+
   const calculateTripDuration = (startDate: string, endDate: string) => {
     const tripDuration = Math.ceil(
       (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24),
@@ -164,9 +177,11 @@ function SavedTripsContent() {
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() => {
-                      setSelectedTrip(trip)
-                      setIsDialogOpen(true)
+                    onClick={async () => {
+                      const itinerary = await fetchItineraryForTrip(trip.tid);
+                      setSelectedTrip({ ...trip, itinerary });
+                      setActiveTab("day-1");
+                      setIsDialogOpen(true);
                     }}
                   >
                     View Itinerary
@@ -232,9 +247,9 @@ function SavedTripsContent() {
                       <TabsContent key={i} value={`day-${i + 1}`} className="space-y-4">
                         <h3 className="text-lg font-medium">Day {i + 1} Itinerary</h3>
 
-                        {selectedTrip.itinerary && selectedTrip.itinerary[`day${i + 1}`] ? (
+                        { selectedTrip.itinerary && selectedTrip.itinerary[i] ? (
                           <div className="space-y-4">
-                            {selectedTrip.itinerary[`day${i + 1}`].map((activity: any, actIndex: number) => (
+                            {selectedTrip.itinerary[i].items.map((activity: any, actIndex: number) => (
                               <Card key={actIndex}>
                                 <CardContent className="p-4">
                                   <div className="flex items-start justify-between">
