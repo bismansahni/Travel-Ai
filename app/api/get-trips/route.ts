@@ -16,9 +16,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
 
+  const sqlQuery = `
+    SELECT t.* 
+    FROM travelsearch t
+    JOIN users u ON t.uid = u.uid
+    WHERE u.email = $1
+  `;
+
   try {
     const { rows } = await pool.query(
-      `SELECT * FROM itineraries WHERE user_email = $1`,
+      sqlQuery,
       [email]
     );
 
