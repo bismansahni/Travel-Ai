@@ -8,7 +8,7 @@ const pool = new Pool({
 
 export async function POST(req: NextRequest) {
   try {
-    const { userEmail, startDate, endDate, budget, destination, preferences } = await req.json()
+    const { userEmail, startDate, endDate, budget, destination, preference } = await req.json()
 
     const userResult = await pool.query(
       `SELECT uid FROM users WHERE email = $1`,
@@ -28,11 +28,11 @@ export async function POST(req: NextRequest) {
 
     const insertResult = await pool.query(
       `
-      INSERT INTO travelsearch (startdate, enddate, duration, location, budget, uid, preferences)
+      INSERT INTO travelsearch (startdate, enddate, duration, location, budget, uid, preference)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING tid
       `,
-      [startDate, endDate, duration, destination, budget, uid, preferences || null ]
+      [startDate, endDate, duration, destination, budget, uid, preference || null ]
     );
 
     const newTripId = insertResult.rows[0].tid;
