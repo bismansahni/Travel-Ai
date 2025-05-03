@@ -8,35 +8,26 @@ const pool = new Pool({
 
 export async function DELETE(req: NextRequest) {
   const email = req.nextUrl.searchParams.get("email");
-  const tripId = req.nextUrl.searchParams.get("tripId");
+  const destination = req.nextUrl.searchParams.get("destination");
 
-  if (!email || !tripId) {
-    return NextResponse.json({ error: "Email and tripId are required" }, { status: 400 });
+  if (!email || !destination) {
+    return NextResponse.json({ error: "Email and destination are required" }, { status: 400 });
   }
 
   try {
-    
-    const { rows } = await pool.query(
-      `
-      SELECT t.tid FROM travelsearch t
-      JOIN users u ON t.uid = u.uid
-      WHERE u.email = $1 AND t.tid = $2
-      `,
-      [email, tripId]
+    const result = await pool.query(
+      `DELETE FROM itineraries WHERE user_email = $1 AND destination = $2`,
+      [email, destination]
     );
 
-    if (!rows.length) {
-      return NextResponse.json({ error: "Trip not found or does not belong to user" }, { status: 404 });
+    if (result.rowCount === 0) {
+      return NextResponse.json({ error: "Trip not found" }, { status: 404 });
     }
-
-    await pool.query(`DELETE FROM travelsearch WHERE tid = $1`, [tripId]);
 
     return NextResponse.json({ message: "Trip deleted successfully" });
 
   } catch (err) {
-
     console.error("Error deleting trip:", err);
     return NextResponse.json({ error: "Failed to delete trip" }, { status: 500 });
-    
   }
 }
