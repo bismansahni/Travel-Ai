@@ -8,7 +8,7 @@ const pool = new Pool({
 
 export async function DELETE(req: NextRequest) {
   const email = req.nextUrl.searchParams.get("email");
-  const tripId = req.nextUrl.searchParams.get("tripId");
+  const tripId = req.nextUrl.searchParams.get("tid");
 
   if (!email || !tripId) {
     return NextResponse.json({ error: "Email and destination are required" }, { status: 400 });
