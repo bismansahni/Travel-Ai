@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, Clock, DollarSign, MapPin } from "lucide-react"
 import { format, isValid } from "date-fns"
 
+
 function SavedTripsContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get("email")
