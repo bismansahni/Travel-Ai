@@ -9,10 +9,7 @@ const pool = new Pool({
 export async function GET(req: NextRequest) {
   const email = req.nextUrl.searchParams.get("email");
 
-  console.log("Incoming request to fetch trips for email:", email);
-
   if (!email) {
-    console.warn("No email provided in query params");
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
 
@@ -27,12 +24,8 @@ export async function GET(req: NextRequest) {
     ORDER BY t.tid, r.day
   `;
 
-  console.log("SQL Query:\n", sqlQuery);
-
   try {
     const { rows } = await pool.query(sqlQuery, [email]);
-
-    console.log("Raw rows from DB:", rows);
 
     if (!rows.length) {
       console.log("No trips found for user:", email);
@@ -72,8 +65,6 @@ export async function GET(req: NextRequest) {
     }
 
     const trips = Array.from(tripsMap.values());
-
-    console.log("Final transformed trips object:", trips);
 
     return NextResponse.json({ trips });
   } catch (err) {
