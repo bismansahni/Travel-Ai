@@ -7,44 +7,27 @@ const pool = new Pool({
 });
 
 export async function GET(req: NextRequest) {
-  const email = req.nextUrl.searchParams.get("email");
   const tid = req.nextUrl.searchParams.get("tid");
 
-  if (!email || !tid) {
-    return NextResponse.json(
-      { error: "Email and trip ID (tid) are required" },
-      { status: 400 }
-    );
+  if (!tid) {
+    return NextResponse.json({ error: "tid is required" }, { status: 400 });
   }
 
   try {
-    
     const { rows } = await pool.query(
-      `
-      SELECT r.rid, r.activities, r.estimatedcost, r.day, r.tid
-      FROM tresult r
-      JOIN travelsearch t ON r.tid = t.tid
-      JOIN users u ON t.uid = u.uid
-      WHERE u.email = $1 AND r.tid = $2
-      `,
-      [email, tid]
+      `SELECT activities FROM tresult WHERE tid = $1`,
+      [tid]
     );
 
     if (!rows.length) {
-      return NextResponse.json(
-        { error: "No result found or unauthorized access" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "No results found" }, { status: 404 });
     }
 
-    console.log("Fetched tresults:", rows);
-
-    return NextResponse.json({ result: rows[0] });
+    // activities is stored as a JSON string
+    const activities = JSON.parse(rows[0].activities);  // array of days
+    return NextResponse.json({ activities });
   } catch (err) {
-    console.error("Error fetching result:", err);
-    return NextResponse.json(
-      { error: "Failed to fetch result" },
-      { status: 500 }
-    );
+    console.error("get‑trip‑results error:", err);
+    return NextResponse.json({ error: "Failed to fetch results" }, { status: 500 });
   }
 }
