@@ -71,7 +71,7 @@
 //   const handleSubmit = async (values: FormValues) => {
 //     try {
 //       setIsLoading(true) // ✅ Show loader immediately
-  
+
 //       const response = await fetch("/api/callGemini", {
 //         method: "POST",
 //         headers: {
@@ -79,7 +79,7 @@
 //         },
 //         body: JSON.stringify(values),
 //       })
-  
+
 //       const result = await response.json()
 //       console.log("AI Response:", result)
 //       onSubmit(result)
@@ -98,9 +98,9 @@
 //           preferences: values.preferences,
 //           itineraryData: result,
 //         }),
-        
+
 //       })
-  
+
 //       const saveResult = await saveResponse.json()
 //       console.log("Saved to DB:", saveResult)
 
@@ -111,8 +111,8 @@
 //       setIsLoading(false) // ✅ Hide loader when done
 //     }
 //   }
-  
-  
+
+
 
 //   return (
 //     <Card>
@@ -328,7 +328,7 @@ function TravelFormContent({ onSubmit, isLoading, setIsLoading }: TravelFormProp
   const handleSubmit = async (values: FormValues) => {
     try {
       setIsLoading(true)
-      
+
       const response = await fetch("/api/callGemini", {
         method: "POST",
         headers: {
@@ -345,7 +345,7 @@ function TravelFormContent({ onSubmit, isLoading, setIsLoading }: TravelFormProp
       onSubmit(result)
 
       if (email) {
-        const saveResponse = await fetch("/api/save-trip", {
+        const saveTripRes = await fetch("/api/save-trip", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -354,17 +354,39 @@ function TravelFormContent({ onSubmit, isLoading, setIsLoading }: TravelFormProp
             startDate: values.startDate,
             endDate: values.endDate,
             budget: values.budget,
-            preferences: values.preferences,
-            itineraryData: result,
+            preference: values.preferences,
           }),
-        })
+        });
 
-        if (!saveResponse.ok) {
-          throw new Error("Failed to save trip")
+        console.log("Saved trip to DB:", saveTripRes);
+
+        const { tripId } = await saveTripRes.json();
+        console.log("🚨 Payload being sent to /api/save-trip-results", {
+          tid: tripId,
+          day: 0,
+          activities: JSON.stringify(result.activities)
+        });
+
+
+        const saveResultRes = await fetch("/api/save-trip-results", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tid: tripId,
+            activities: JSON.stringify(result.activities), // Combine entire array into 1 string
+            estimatedcost: null,
+            day: 0
+          }),
+        });
+
+        if (!saveResultRes.ok) {
+          const err = await saveResultRes.json();
+          console.error("Failed to save result:", err);
         }
-        
-        await saveResponse.json()
       }
+
+
+
     } catch (err) {
       console.error("Error:", err)
       // You might want to add error state handling here
@@ -416,11 +438,11 @@ function TravelFormContent({ onSubmit, isLoading, setIsLoading }: TravelFormProp
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar 
-                          mode="single" 
-                          selected={field.value} 
-                          onSelect={field.onChange} 
-                          initialFocus 
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
                           disabled={(date) => date < new Date()}
                         />
                       </PopoverContent>
@@ -449,11 +471,11 @@ function TravelFormContent({ onSubmit, isLoading, setIsLoading }: TravelFormProp
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar 
-                          mode="single" 
-                          selected={field.value} 
-                          onSelect={field.onChange} 
-                          initialFocus 
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
                           disabled={(date) => date < new Date()}
                         />
                       </PopoverContent>
